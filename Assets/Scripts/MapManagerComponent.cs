@@ -6,6 +6,8 @@ public class MapManagerComponent : MonoBehaviour
 {
     public GameObject player;
     public GameObject floor;
+    public GameObject coinPrefab;
+    public int coinsAmount;
     private float mapWidth;
     private float mapHeight;
     private float tileWidth;
@@ -16,6 +18,8 @@ public class MapManagerComponent : MonoBehaviour
 
     //map boundaries
     private Tile floorTile;
+
+    private LayerMask maskObstacles;
 
     public struct Tile
     {
@@ -34,6 +38,8 @@ public class MapManagerComponent : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        maskObstacles = LayerMask.GetMask("Obstacles");
+
         mapWidth = 10 * floor.transform.localScale.x;
         mapHeight = 10 * floor.transform.localScale.z;
 
@@ -57,6 +63,8 @@ public class MapManagerComponent : MonoBehaviour
                 tiles[x, y] = new Tile(
                     floorTile.x1+x*tileWidth, floorTile.x1 + x*tileWidth + tileWidth,
                     floorTile.z1 + y * tileHeight, floorTile.z1 + y * tileHeight + tileHeight);
+
+        SpawnCoins(coinsAmount);
     }
 
     public bool GetPlayerTile(out Tile tile)
@@ -95,5 +103,17 @@ public class MapManagerComponent : MonoBehaviour
     public void KillPlayer()
     {
         player.SetActive(false);
+    }
+
+    public void SpawnCoins(int amount)
+    {
+        Vector2 coinPosition;
+        for(int i = 0; i < amount; i++)
+        {
+            coinPosition = AIPlayerFinder.GenerateWaypoint(floorTile,maskObstacles,60000);
+            if(coinPosition!= default(Vector2))
+                Instantiate(coinPrefab, new Vector3(coinPosition.x, 0.5f, coinPosition.y), coinPrefab.transform.rotation);
+        }
+        
     }
 }
