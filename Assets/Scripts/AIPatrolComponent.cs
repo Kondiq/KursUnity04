@@ -23,7 +23,7 @@ public class AIPatrolComponent : MonoBehaviour
 
     void Update()
     {
-        GoToNextNavPoint();
+        GoToNextNavPointRemoveOld();
     }
 
     //pobranie nastepnego punktu
@@ -46,19 +46,47 @@ public class AIPatrolComponent : MonoBehaviour
         return navPointsList[0];
     }
 
+    bool GoToNextNavPointRemoveOld()
+    {
+        if (navPointsList.Count > 0)
+        {
+            if (isBeginning)
+            {
+                isBeginning = false;
+                agent.destination = navPointsList[0];
+                return true;
+            }
+
+            //sprawdzenie czy agent nie oblicza nowej sciezki i dystansu od celu
+            if (!agent.pathPending && agent.remainingDistance < 0.5f)
+            {
+                //ustawienie celu na nastepny navpoint
+                RemoveNavPoint(0);
+                if (navPointsList.Count > 0)
+                {
+                    agent.destination = navPointsList[0];
+                    return true;
+                }
+            }
+        }
+        return false;               
+    }
+
     //ustawienie celu na kolejny punkt
     void GoToNextNavPoint()
     {
-        //sprawdzenie czy agent nie oblicza nowej sciezki i dystansu od celu
-        if (!agent.pathPending && agent.remainingDistance < 0.5f)
-            //ustawienie celu na nastepny navpoint
-            agent.destination = GetNextNavPoint();
+        if (navPointsList.Count > 0)
+            //sprawdzenie czy agent nie oblicza nowej sciezki i dystansu od celu
+            if (!agent.pathPending && agent.remainingDistance < 0.5f)
+                //ustawienie celu na nastepny navpoint
+                agent.destination = GetNextNavPoint();    
     }
 
     public void AddNavPoint(ref Vector3 point)
     {
         navPointsList.Add(point);
         enabled = true;
+        //Debug.Log(point);
     }
 
     public void RemoveNavPoint(int index)
@@ -72,5 +100,10 @@ public class AIPatrolComponent : MonoBehaviour
     public void ClearNavList()
     {
         navPointsList.Clear();
+    }
+
+    public int GetNavPointsCount()
+    {
+        return navPointsList.Count;
     }
 }

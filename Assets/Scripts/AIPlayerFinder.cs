@@ -5,6 +5,7 @@ using UnityEngine.AI;
 
 public class AIPlayerFinder : MonoBehaviour
 {
+    public float viewDistance = 10f;
     public GameObject mapManagerObject;
     private MapManagerComponent mapManager;
     MapManagerComponent.Tile playerTile;
@@ -12,8 +13,9 @@ public class AIPlayerFinder : MonoBehaviour
     public int waypointsTries=5;
     public int generateWaypointTries = 100;
     private AIPatrolComponent aiPatrolComponent;
-
-    bool first = true;
+    LayerMask mask;
+    Vector3 originRayCast;
+    Vector3 destinationRayCast;
 
     public bool GenerateWaypoint(MapManagerComponent.Tile tile, int numberOfTries, out Vector2 genWaypoint)
     {
@@ -23,13 +25,19 @@ public class AIPlayerFinder : MonoBehaviour
             genWaypoint = new Vector2(Random.Range(tile.x1, tile.x2), Random.Range(tile.z1, tile.z2));
             i++;
             if (i > numberOfTries) return false;
-        } while(!CheckIfWalkable(genWaypoint));
+        } while(!CheckIfWalkable(ref genWaypoint));
 
         return true;
     }
 
-    public bool CheckIfWalkable(Vector2 vec)
+    public bool CheckIfWalkable(ref Vector2 vec)
     {
+        originRayCast = new Vector3(vec.x, 5.0f, vec.y);
+        destinationRayCast = new Vector3(vec.x, -5.0f, vec.y);
+        if (Physics.Raycast(originRayCast, destinationRayCast, 20.0f, mask))
+        {
+            return false;
+        }
         return true;
     }
 
@@ -57,15 +65,15 @@ public class AIPlayerFinder : MonoBehaviour
     {
         aiPatrolComponent = GetComponent<AIPatrolComponent>();
         mapManager = mapManagerObject.GetComponent<MapManagerComponent>();
+        mask = LayerMask.GetMask("Obstacles");
     }
 
     // Update is called once per frame
     void Update()
     {
         //TODO testing will change later
-        if (first)
+        if (aiPatrolComponent.GetNavPointsCount()==0)
         {
-            first = false;
             if (mapManager.GetPlayerTile(out playerTile))
             {
                 GoToPlayerTile(playerTile);
