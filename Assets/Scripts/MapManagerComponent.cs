@@ -61,29 +61,39 @@ public class MapManagerComponent : MonoBehaviour
 
     public bool GetPlayerTile(out Tile tile)
     {
+        return GetObjectTile(out tile, player);
+    }
+
+    public bool GetObjectTile(out Tile tile, GameObject ob)
+    {
         for (int x = 0; x < tilesNumberWide; x++)
             for (int y = 0; y < tilesNumberHigh; y++)
             {
-                //Debug.Log(tiles[x, y].x1 + "-" + tiles[x, y].x2 + " x " + tiles[x, y].z1 + "-" + tiles[x, y].z2 + " player: " + player.transform.position.x + "x" + player.transform.position.z);
+                //Debug.Log(tiles[x, y].x1 + "-" + tiles[x, y].x2 + " x " + tiles[x, y].z1 + "-" + tiles[x, y].z2 + " object: " + ob.transform.position.x + "x" + ob.transform.position.z);
                 if (
-                    player.transform.position.x > tiles[x, y].x1
-                    && player.transform.position.x < tiles[x, y].x2
-                    && player.transform.position.z > tiles[x, y].z1
-                    && player.transform.position.z < tiles[x, y].z2
+                    ob.transform.position.x > tiles[x, y].x1
+                    && ob.transform.position.x < tiles[x, y].x2
+                    && ob.transform.position.z > tiles[x, y].z1
+                    && ob.transform.position.z < tiles[x, y].z2
                     )
                 {
                     tile = tiles[x, y];
                     return true;
                 }
             }
-                
+
 
         tile = new Tile();
         return false;
     }
 
-    //public Vector2 GetPlayerPosition()
-    //{
-    //    return new Vector2(player.transform.position.x, player.transform.position.z);
-    //}
+    public Vector3 GetPlayerPosition()
+    {
+        return player.transform.position;
+    }
+
+    public void KillPlayer()
+    {
+        player.SetActive(false);
+    }
 }

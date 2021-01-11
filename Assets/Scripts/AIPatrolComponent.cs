@@ -82,6 +82,13 @@ public class AIPatrolComponent : MonoBehaviour
                 agent.destination = GetNextNavPoint();    
     }
 
+    public void GoToPoint(Vector3 point)
+    {
+        ClearNavList();
+        AddNavPoint(ref point);
+        agent.destination = GetNextNavPoint();
+    }
+
     public void AddNavPoint(ref Vector3 point)
     {
         navPointsList.Add(point);
